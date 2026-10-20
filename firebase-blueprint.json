@@ -1,0 +1,196 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with cohort, coins balance, and waitlist status",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "displayName": { "type": "string", "maxLength": 128 },
+        "photoURL": { "type": "string", "maxLength": 512 },
+        "country": { "type": "string", "maxLength": 64 },
+        "amazon_region": { "type": "string", "maxLength": 32 },
+        "amazonRegion": { "type": "string", "maxLength": 32 },
+        "joinedAt": { "type": "string", "maxLength": 64 },
+        "cohortId": { "type": "string", "maxLength": 64 },
+        "rewardTierName": { "type": "string", "maxLength": 64 },
+        "totalCoins": { "type": "number" },
+        "userIndex": { "type": "number" },
+        "questionnaireCompleted": { "type": "boolean" },
+        "role": { "type": "string", "enum": ["user", "admin"] },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["userId", "email", "totalCoins", "role"]
+    },
+    "CoinTransaction": {
+      "title": "CoinTransaction",
+      "description": "Immutable ledger record for every Luckyly Coin creation or deduction",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "amount": { "type": "number" },
+        "type": {
+          "type": "string",
+          "enum": ["signup_reward", "questionnaire_reward", "draw_entry", "failed_draw_compensation", "admin_adjustment"]
+        },
+        "description": { "type": "string", "maxLength": 256 },
+        "campaignId": { "type": "string", "maxLength": 128 },
+        "drawId": { "type": "string", "maxLength": 128 },
+        "previousBalance": { "type": "number" },
+        "resultingBalance": { "type": "number" },
+        "systemVersion": { "type": "string", "maxLength": 32 },
+        "timestamp": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "amount", "type", "description", "timestamp"]
+    },
+    "Draw": {
+      "title": "Draw",
+      "description": "Regional prize draw with participant threshold and deadline",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "campaignId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 256 },
+        "description": { "type": "string", "maxLength": 1024 },
+        "prizeName": { "type": "string", "maxLength": 256 },
+        "prizeValue": { "type": "number" },
+        "prizeCurrency": { "type": "string", "maxLength": 16 },
+        "imageUrl": { "type": "string", "maxLength": 512 },
+        "minParticipants": { "type": "number" },
+        "currentParticipants": { "type": "number" },
+        "entryCostCoins": { "type": "number" },
+        "deadline": { "type": "string", "maxLength": 64 },
+        "status": {
+          "type": "string",
+          "enum": ["waiting_for_participants", "threshold_reached", "draw_executed", "minimum_not_reached"]
+        },
+        "winnerUserId": { "type": "string", "maxLength": 128 },
+        "winnerDisplayName": { "type": "string", "maxLength": 128 },
+        "winnerRegion": { "type": "string", "maxLength": 64 },
+        "executedAt": { "type": "string", "maxLength": 64 },
+        "alternativeRewardCoins": { "type": "number" },
+        "termsAcknowledgedText": { "type": "string", "maxLength": 512 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "title", "prizeName", "minParticipants", "deadline", "status"]
+    },
+    "DrawEntry": {
+      "title": "DrawEntry",
+      "description": "User entry into a specific draw with chosen eligible region",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "drawId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "userDisplayName": { "type": "string", "maxLength": 128 },
+        "userEmail": { "type": "string", "maxLength": 256 },
+        "selectedRegion": { "type": "string", "maxLength": 64 },
+        "regionEligibilityStatus": { "type": "string", "maxLength": 64 },
+        "termsAcknowledged": { "type": "boolean" },
+        "campaignId": { "type": "string", "maxLength": 128 },
+        "timestamp": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "drawId", "userId", "selectedRegion", "termsAcknowledged", "timestamp"]
+    },
+    "QuestionnaireAnswer": {
+      "title": "QuestionnaireAnswer",
+      "description": "Completed onboarding questionnaire responses",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "questionnaireId": { "type": "string", "maxLength": 128 },
+        "amazon_region": { "type": "string", "maxLength": 32 },
+        "amazonRegion": { "type": "string", "maxLength": 32 },
+        "submittedAt": { "type": "string", "maxLength": 64 },
+        "rewardGranted": { "type": "boolean" }
+      },
+      "required": ["id", "userId", "questionnaireId", "submittedAt", "rewardGranted"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Transparent system and administrative audit log event",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "timestamp": { "type": "string", "maxLength": 64 },
+        "eventType": { "type": "string", "maxLength": 128 },
+        "actorId": { "type": "string", "maxLength": 128 },
+        "actorType": { "type": "string", "enum": ["SYSTEM", "USER", "ADMIN"] },
+        "userId": { "type": "string", "maxLength": 128 },
+        "drawId": { "type": "string", "maxLength": 128 },
+        "campaignId": { "type": "string", "maxLength": 128 },
+        "coinTxId": { "type": "string", "maxLength": 128 },
+        "reason": { "type": "string", "maxLength": 512 },
+        "systemVersion": { "type": "string", "maxLength": 32 }
+      },
+      "required": ["id", "timestamp", "eventType", "actorType", "reason"]
+    },
+    "EmailEvent": {
+      "title": "EmailEvent",
+      "description": "Automated transactional email lifecycle record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "recipientEmail": { "type": "string", "maxLength": 256 },
+        "type": { "type": "string", "maxLength": 64 },
+        "subject": { "type": "string", "maxLength": 256 },
+        "sentAt": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "maxLength": 32 }
+      },
+      "required": ["id", "userId", "recipientEmail", "type", "subject", "sentAt"]
+    },
+    "SystemConfiguration": {
+      "title": "SystemConfiguration",
+      "description": "Configurable parameters for campaigns, thresholds, and rewards",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "activeCampaignId": { "type": "string", "maxLength": 128 },
+        "signupEnabled": { "type": "boolean" },
+        "defaultFailedDrawCompensation": { "type": "number" },
+        "version": { "type": "string", "maxLength": 32 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "activeCampaignId", "signupEnabled", "version"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile with balance, waitlist cohort, and verification details"
+    },
+    "/coin_transactions/{txId}": {
+      "schema": "CoinTransaction",
+      "description": "Ledger records of every coin allocation and entry deduction"
+    },
+    "/draws/{drawId}": {
+      "schema": "Draw",
+      "description": "Regional draws, minimum participant requirements, and execution statuses"
+    },
+    "/draw_entries/{entryId}": {
+      "schema": "DrawEntry",
+      "description": "Draw participation records linking user, draw, and selected Amazon region"
+    },
+    "/questionnaire_answers/{answerId}": {
+      "schema": "QuestionnaireAnswer",
+      "description": "Onboarding questionnaire submissions preventing repeat claims"
+    },
+    "/audit_logs/{auditId}": {
+      "schema": "AuditLog",
+      "description": "Comprehensive auditable trail of all operations and state transitions"
+    },
+    "/email_events/{emailId}": {
+      "schema": "EmailEvent",
+      "description": "Transactional email lifecycle history and delivery logs"
+    },
+    "/system_configuration/{configId}": {
+      "schema": "SystemConfiguration",
+      "description": "Global configurable campaign rules and fallback compensation values"
+    }
+  }
+}

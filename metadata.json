@@ -1,0 +1,8 @@
+{
+  "name": "Luckyly",
+  "description": "Luckyly — Be there from the beginning. Luckyly is launching a premium consumer rewards brand on October 16, 2026.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

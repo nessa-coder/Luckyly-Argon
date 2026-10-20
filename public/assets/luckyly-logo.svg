@@ -1,0 +1,152 @@
+<svg viewBox="0 0 398 110" width="398" height="110" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Metallic Gold Facet Gradients (Refined 24k Luxury Palette) -->
+    <linearGradient id="goldTopFacet" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb"/>
+      <stop offset="25%" stop-color="#fde047"/>
+      <stop offset="65%" stop-color="#ca8a04"/>
+      <stop offset="100%" stop-color="#713f12"/>
+    </linearGradient>
+
+    <linearGradient id="goldRightFacet" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="30%" stop-color="#eab308"/>
+      <stop offset="75%" stop-color="#a16207"/>
+      <stop offset="100%" stop-color="#552c08"/>
+    </linearGradient>
+
+    <linearGradient id="goldBaseFacet" x1="0%" y1="0%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#ca8a04"/>
+      <stop offset="40%" stop-color="#fef9c3"/>
+      <stop offset="80%" stop-color="#b45309"/>
+      <stop offset="100%" stop-color="#451a03"/>
+    </linearGradient>
+
+    <linearGradient id="goldArmFacet" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="50%" stop-color="#ca8a04"/>
+      <stop offset="100%" stop-color="#713f12"/>
+    </linearGradient>
+
+    <linearGradient id="goldHighlightFacet" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#fef08a"/>
+      <stop offset="75%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+
+    <!-- Ruby Star Gradients -->
+    <radialGradient id="rubyCore" cx="45%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#fecdd3"/>
+      <stop offset="25%" stop-color="#ef4444"/>
+      <stop offset="70%" stop-color="#b91c1c"/>
+      <stop offset="100%" stop-color="#450a0a"/>
+    </radialGradient>
+
+    <!-- Ruby Glow Filter -->
+    <filter id="rubyGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Soft Drop Shadow for Logo -->
+    <filter id="logoShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000000" flood-opacity="0.8"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#logoShadow)">
+    <!-- ==================== EMBLEM (LEFT) ==================== -->
+    <g transform="translate(10, 8)">
+      <!-- 4-Pointed Ruby Star Sparkle (Top-Right of Emblem) -->
+      <g filter="url(#rubyGlow)">
+        <!-- Outer Diamond Flare -->
+        <path d="M 68,14 Q 68,28 82,28 Q 68,28 68,42 Q 68,28 54,28 Q 68,28 68,14 Z" 
+              fill="url(#rubyCore)" 
+              stroke="#fca5a5" 
+              stroke-width="0.8" 
+              stroke-opacity="0.85"/>
+        <!-- Inner Radiant Facet Core -->
+        <path d="M 68,19 Q 68,28 77,28 Q 68,28 68,37 Q 68,28 59,28 Q 68,28 68,19 Z" 
+              fill="#f87171" 
+              opacity="0.75"/>
+        <!-- Center Sparkle Pinpoint -->
+        <circle cx="68" cy="28" r="1.6" fill="#ffffff"/>
+      </g>
+
+      <!-- Origami Faceted Gold Ribbon Loop ("L" / Clover Fold) -->
+      <!-- Facet 1: Upper Left Crest -->
+      <polygon points="36,44 62,34 58,66 36,44" 
+               fill="url(#goldTopFacet)" 
+               stroke="#ffffff" 
+               stroke-width="0.5" 
+               stroke-opacity="0.4"/>
+
+      <!-- Facet 2: Vertical Downward Stem Plane -->
+      <polygon points="36,44 58,66 34,82 36,44" 
+               fill="url(#goldRightFacet)" 
+               stroke="#ffe59f" 
+               stroke-width="0.4" 
+               stroke-opacity="0.35"/>
+
+      <!-- Facet 3: Right Vertical Bevel -->
+      <polygon points="62,34 63,55 58,66 62,34" 
+               fill="url(#goldHighlightFacet)" 
+               stroke="#ffffff" 
+               stroke-width="0.5" 
+               stroke-opacity="0.5"/>
+
+      <!-- Facet 4: Bottom Base Horizontal Transition -->
+      <polygon points="34,82 72,82 59,67 34,82" 
+               fill="url(#goldBaseFacet)" 
+               stroke="#ffffff" 
+               stroke-width="0.5" 
+               stroke-opacity="0.35"/>
+
+      <!-- Facet 5: Lower Right Horizontal Arm -->
+      <polygon points="59,67 72,82 86,67 59,67" 
+               fill="url(#goldArmFacet)" 
+               stroke="#ffe59f" 
+               stroke-width="0.4" 
+               stroke-opacity="0.4"/>
+
+      <!-- Facet 6: Wing Tip Diamond Return -->
+      <polygon points="72,82 86,67 98,67 72,82" 
+               fill="url(#goldHighlightFacet)" 
+               stroke="#ffffff" 
+               stroke-width="0.5" 
+               stroke-opacity="0.5"/>
+    </g>
+
+    <!-- ==================== WORDMARK "luckyly" (RIGHT) ==================== -->
+    <!-- Authentic lowercase geometric typography with balanced metrics, optical vertical alignment to emblem, and clean letter spacing -->
+    <g transform="translate(126, 74)" fill="#ffffff">
+      <!-- Letter 'l' -->
+      <rect x="0" y="-48" width="7.5" height="48" rx="1.5"/>
+
+      <!-- Letter 'u' -->
+      <path d="M 18,-32 L 25.5,-32 L 25.5,-13.5 C 25.5,-8 29,-5 34.5,-5 C 40,-5 43.5,-8 43.5,-13.5 L 43.5,-32 L 51,-32 L 51,0 L 44,0 L 43.7,-4.8 C 41.2,-1.5 37,0.8 31.8,0.8 C 23.5,0.8 18,-4.2 18,-13.2 Z"/>
+
+      <!-- Letter 'c' (separated from 'u' with clean 9px gap) -->
+      <path d="M 98.5,-23.5 L 92,-20.5 C 90,-25 86,-27.5 81,-27.5 C 73,-27.5 67.5,-21.2 67.5,-15.5 C 67.5,-9.8 73,-3.5 81,-3.5 C 86,-3.5 90,-6 92,-10.5 L 98.5,-7.5 C 95,-1 89,2 81,2 C 68.5,2 60,-6.5 60,-15.5 C 60,-24.5 68.5,-33 81,-33 C 89,-33 95,-30 98.5,-23.5 Z"/>
+
+      <!-- Letter 'k' -->
+      <g>
+        <rect x="107" y="-48" width="7.5" height="48" rx="1.5"/>
+        <path d="M 133.5,-32 L 123.5,-18 L 135.5,0 L 126,0 L 117,-13 L 114.5,-9.5 L 114.5,0 L 107,0 L 107,-32 L 114.5,-32 L 114.5,-18 L 125.5,-32 Z"/>
+      </g>
+
+      <!-- Letter 'y' -->
+      <path d="M 144.5,-32 L 152.3,-32 L 160,-10.5 L 167.7,-32 L 175.5,-32 L 164,1.2 C 160.5,10.2 156,14 147.5,14 L 143,14 L 143,8.5 L 147,8.5 C 152,8.5 155,6.5 157,0.8 L 157.7,-1 Z"/>
+
+      <!-- Letter 'l' (second) -->
+      <rect x="184" y="-48" width="7.5" height="48" rx="1.5"/>
+
+      <!-- Letter 'y' (second) -->
+      <path d="M 200.5,-32 L 208.3,-32 L 216,-10.5 L 223.7,-32 L 231.5,-32 L 220,1.2 C 216.5,10.2 212,14 203.5,14 L 199,14 L 199,8.5 L 203,8.5 C 208,8.5 211,6.5 213,0.8 L 213.7,-1 Z"/>
+    </g>
+  </g>
+</svg>

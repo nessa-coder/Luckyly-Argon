@@ -1,0 +1,215 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Security Primitives
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'neryasay@gmail.com' ||
+        request.auth.token.email == 'nessa@luckyly.org' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // Admins Collection
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Connection Healthcheck
+    match /test/{testId} {
+      allow read: if true;
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow get: if resource == null || isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      
+      allow create: if (
+        isOwner(userId) &&
+        isValidId(userId) &&
+        incoming().userId == request.auth.uid &&
+        incoming().totalCoins is number && incoming().totalCoins >= 0 &&
+        incoming().role in ['user', 'admin'] &&
+        (incoming().role == 'admin' ? isAdmin() : true)
+      );
+
+      allow update: if (
+        (isOwner(userId) || isAdmin()) &&
+        isValidId(userId)
+      );
+
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // Coin Transactions Collection (Authoritative Ledger)
+    match /coin_transactions/{txId} {
+      allow get: if resource == null || (isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin())) || (resource != null && resource.data.userId.matches('^member_.*'));
+      allow list: if (isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin())) || isAdmin();
+      
+      allow create: if (
+        isValidId(txId) &&
+        (
+          (isSignedIn() && (incoming().userId == request.auth.uid || isAdmin())) ||
+          incoming().userId.matches('^member_.*') ||
+          incoming().userId.matches('^pioneer_.*')
+        ) &&
+        incoming().amount is number &&
+        incoming().type in ['signup_reward', 'questionnaire_reward', 'QUESTIONNAIRE_REWARD', 'bonus_reward', 'draw_entry', 'failed_draw_compensation', 'admin_adjustment']
+      );
+
+      allow update: if isAdmin();
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    // Syndicate Groups Collection (Strictly max 5 members per group)
+    match /syndicate_groups/{groupId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+
+      allow create: if (
+        isSignedIn() &&
+        isValidId(groupId) &&
+        incoming().creatorId == request.auth.uid &&
+        incoming().members.size() <= 5
+      );
+
+      allow update: if (
+        isSignedIn() &&
+        incoming().members.size() <= 5
+      );
+
+      allow delete: if (isSignedIn() && resource.data.creatorId == request.auth.uid) || isAdmin();
+    }
+
+    // Draws Collection (Public campaigns and draws)
+    match /draws/{drawId} {
+      allow get: if true;
+      allow list: if true;
+
+      allow create: if isAdmin();
+      allow update: if (
+        isAdmin() ||
+        (isSignedIn() && incoming().diff(existing()).affectedKeys().hasOnly(['currentParticipants']))
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Draw Entries Collection
+    match /draw_entries/{entryId} {
+      allow get: if resource == null || (isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin()));
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if (
+        isSignedIn() &&
+        isValidId(entryId) &&
+        incoming().userId == request.auth.uid &&
+        incoming().selectedRegion is string && incoming().selectedRegion.size() <= 64 &&
+        incoming().termsAcknowledged == true
+      );
+
+      allow update: if isAdmin();
+      allow delete: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+    }
+
+    // Bonus Entries Collection (Complimentary Privilege - strictly 0 coins)
+    match /bonus_entries/{bonusId} {
+      allow get: if resource == null || (isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin()));
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if (
+        isSignedIn() &&
+        isValidId(bonusId) &&
+        incoming().userId == request.auth.uid &&
+        incoming().bonusType == 'complimentary_privilege' &&
+        incoming().coinsDeducted == 0
+      );
+
+      allow update: if isAdmin();
+      allow delete: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+    }
+
+    // Questionnaire Answers Collection
+    match /questionnaire_answers/{answerId} {
+      allow get: if resource == null || (isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin())) || (resource != null && resource.data.userId.matches('^member_.*')) || isAdmin();
+      allow list: if isAdmin();
+
+      allow create: if isValidId(answerId);
+      allow update: if isValidId(answerId) && (isAdmin() || (isSignedIn() && incoming().userId == request.auth.uid) || incoming().userId.matches('^member_.*'));
+      allow delete: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+    }
+
+    // Pioneer Waitlist Collection
+    match /pioneer_waitlist/{pioneerId} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // Analytics Events Collection (Behavioral Session Stream)
+    match /analytics_events/{eventId} {
+      allow get, list: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // Audit Logs Collection
+    match /audit_logs/{auditId} {
+      allow get: if resource == null || (isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin())) || isAdmin();
+      allow list: if isSignedIn() || isAdmin();
+
+      allow create: if isValidId(auditId);
+      allow update: if false;
+      allow delete: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+    }
+
+    // Email Events Collection
+    match /email_events/{emailId} {
+      allow get: if resource == null || (isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin())) || isAdmin();
+      allow list: if isSignedIn() || isAdmin();
+
+      allow create: if isValidId(emailId);
+      allow update: if isAdmin();
+      allow delete: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+    }
+
+    // System Configuration
+    match /system_configuration/{configId} {
+      allow get: if true;
+      allow list: if true;
+      allow write: if isAdmin();
+      allow create: if (
+        incoming().keys().hasOnly(['totalRegistrations', 'totalTicketHolders', 'updatedAt', 'lastParticipantId'])
+      );
+      allow update: if (
+        isAdmin() ||
+        incoming().diff(existing()).affectedKeys().hasOnly(['totalRegistrations', 'totalTicketHolders', 'updatedAt', 'lastParticipantId'])
+      );
+    }
+
+    // Bug Reports Collection (Reporting to Nessa)
+    match /bug_reports/{reportId} {
+      allow get, list: if isAdmin();
+      allow create: if isValidId(reportId) &&
+        incoming().description is string &&
+        incoming().description.size() <= 300 &&
+        incoming().category in ['visual', 'account', 'coins', 'prize', 'other'];
+      allow update, delete: if isAdmin();
+    }
+  }
+}
