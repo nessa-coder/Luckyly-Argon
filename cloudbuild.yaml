@@ -1,0 +1,21 @@
+steps:
+# This step deploys your code to Cloud Run automatically
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  args:
+  - 'gcloud'
+  - 'run'
+  - 'deploy'
+  - 'luckyly-1'
+  - '--source'
+  - '.'
+  - '--region'
+  - 'asia-southeast1'
+  - '--allow-unauthenticated'
+  - '--set-env-vars'
+  - 'SQL_DB_NAME=cloud_sql_production_database'
+  - '--update-secrets'
+  - 'GEMINI_API_KEY=GEMINI_API_KEY_SECRET:latest'
+
+# This tells Google Cloud which image to save as a record
+images:
+- 'gcr.io/$PROJECT_ID/luckyly-1'
