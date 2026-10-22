@@ -1,5 +1,5 @@
 steps:
-# This step deploys your code to Cloud Run automatically
+# Step 1: Deploy to Cloud Run
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   args:
   - 'gcloud'
@@ -16,6 +16,9 @@ steps:
   - '--update-secrets'
   - 'GEMINI_API_KEY=GEMINI_API_KEY_SECRET:latest'
 
-# This tells Google Cloud which image to save as a record
 images:
 - 'gcr.io/$PROJECT_ID/luckyly-1'
+
+# ADD THIS SECTION BELOW TO FIX THE LOGGING ERROR
+options:
+  logging: CLOUD_LOGGING_ONLY
