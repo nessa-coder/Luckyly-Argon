@@ -18,6 +18,7 @@ import {
   DriveSyncStatus,
   MASTER_REQUIRED_ASSETS,
   GoogleDriveFile,
+  uploadTextDocumentToDrive,
 } from '../services/googleDriveService.ts';
 
 interface GoogleDriveModalProps {
@@ -97,6 +98,44 @@ export const GoogleDriveModal: React.FC<GoogleDriveModalProps> = ({ isOpen, onCl
     }
   };
 
+  const [isSavingArtifact, setIsSavingArtifact] = useState<boolean>(false);
+  const [createdDriveFile, setCreatedDriveFile] = useState<GoogleDriveFile | null>(null);
+
+  const handleSaveArtifact = async () => {
+    setIsSavingArtifact(true);
+    setBackupSuccessMessage(null);
+    setErrorMessage(null);
+    setCreatedDriveFile(null);
+
+    try {
+      if (!isDriveConnected()) {
+        await signInWithGoogle();
+        await new Promise(r => setTimeout(r, 600));
+      }
+
+      const res = await fetch('/docs/Luckyly_Google_Drive_Code_Sync_Agent_Plan.md');
+      const content = await res.text();
+      const uploadRes = await uploadTextDocumentToDrive({
+        filename: 'Luckyly_Google_Drive_Code_Sync_Agent_Plan.md',
+        content,
+        mimeType: 'text/markdown',
+      });
+
+      if (uploadRes.success && uploadRes.file) {
+        setCreatedDriveFile(uploadRes.file);
+        setBackupSuccessMessage(`Successfully created "Luckyly_Google_Drive_Code_Sync_Agent_Plan.md" directly in your Google Drive!`);
+        const refreshed = await listDriveFiles();
+        if (refreshed.files) setFiles(refreshed.files);
+      } else {
+        setErrorMessage(uploadRes.error || 'Failed to create file in Google Drive. Please authorize access.');
+      }
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Error creating file in Google Drive.');
+    } finally {
+      setIsSavingArtifact(false);
+    }
+  };
+
   const handleBackupNessaAssets = async () => {
     setIsBackingUp(true);
     setBackupSuccessMessage(null);
@@ -108,7 +147,7 @@ export const GoogleDriveModal: React.FC<GoogleDriveModalProps> = ({ isOpen, onCl
       });
 
       if (res.success) {
-        setBackupSuccessMessage(`Successfully saved ${res.uploadedCount} Nessa reference files (artwork & 5 voice tracks) to your Google Drive in "Luckyly Brand Assets"!`);
+        setBackupSuccessMessage(`Successfully saved assets to your Google Drive in "Luckyly Brand Assets"!`);
         const refreshed = await listDriveFiles();
         if (refreshed.files) setFiles(refreshed.files);
         await handleVerify();
@@ -157,6 +196,77 @@ export const GoogleDriveModal: React.FC<GoogleDriveModalProps> = ({ isOpen, onCl
 
         {/* Content */}
         <div className="p-6 overflow-y-auto space-y-5 text-sm text-neutral-300">
+          {/* Prominent Artifact Document Card: Luckyly_Google_Drive_Code_Sync_Agent_Plan.md */}
+          <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/5 border border-amber-500/40 shadow-lg shadow-amber-950/20 space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300 shrink-0 mt-0.5">
+                  <FileText size={20} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30 font-bold uppercase">
+                      Ready to Upload
+                    </span>
+                    <span className="text-[11px] text-neutral-400">2.9 KB</span>
+                  </div>
+                  <h4 className="text-sm font-bold text-white mt-1 break-all">
+                    Luckyly_Google_Drive_Code_Sync_Agent_Plan.md
+                  </h4>
+                  <p className="text-xs text-neutral-300 mt-0.5">
+                    Implementation plan for the Google Drive Code Sync Agent.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-amber-500/20">
+              <button
+                onClick={handleSaveArtifact}
+                disabled={isSavingArtifact}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-neutral-950 text-xs font-bold flex items-center gap-2 transition-all shadow-md shadow-amber-950/30 cursor-pointer"
+              >
+                {isSavingArtifact ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin" />
+                    <span>Creating in Google Drive...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload size={14} />
+                    <span>Create File in Google Drive Now</span>
+                  </>
+                )}
+              </button>
+
+              {createdDriveFile?.webViewLink && (
+                <a
+                  href={createdDriveFile.webViewLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-medium flex items-center gap-1.5 transition-all"
+                >
+                  <ExternalLink size={13} />
+                  <span>Open File in Google Drive</span>
+                </a>
+              )}
+            </div>
+          </div>
+
+          {backupSuccessMessage && (
+            <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-center gap-2">
+              <CheckCircle size={14} className="shrink-0" />
+              <span>{backupSuccessMessage}</span>
+            </div>
+          )}
+
+          {errorMessage && (
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-xs text-red-300 flex items-center gap-2">
+              <AlertCircle size={14} className="shrink-0" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
           {!connected ? (
             /* Connect Prompt */
             <div className="text-center py-8 space-y-4">

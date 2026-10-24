@@ -28,7 +28,6 @@ import {
 } from 'firebase/auth';
 import { auth } from './firebase.ts';
 import { trackEvent } from '../services/analyticsService.ts';
-import { setDriveAccessToken, clearDriveAccessToken } from '../services/googleDriveService.ts';
 
 export type SupportedAuthProvider = 'google' | 'apple' | 'microsoft';
 
@@ -49,8 +48,6 @@ export interface ProviderConfigStatus {
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('email');
 googleProvider.addScope('profile');
-googleProvider.addScope('https://www.googleapis.com/auth/drive.file');
-googleProvider.addScope('https://www.googleapis.com/auth/drive.readonly');
 googleProvider.setCustomParameters({
   prompt: 'select_account',
 });
@@ -186,14 +183,6 @@ export async function authenticateWithProvider(
   // Modern mobile browsers and desktop browsers both support popups from user-initiated gestures.
   try {
     const userCredential: UserCredential = await signInWithPopup(auth, provider);
-    
-    // Capture Google Workspace Drive access token in memory
-    if (providerName === 'google') {
-      const gCred = GoogleAuthProvider.credentialFromResult(userCredential);
-      if (gCred?.accessToken) {
-        setDriveAccessToken(gCred.accessToken);
-      }
-    }
 
     trackEvent('auth_attempt_succeeded', {
       userId: userCredential.user.uid,
@@ -259,7 +248,6 @@ export async function linkPendingCredentialToUser(
  * Signs out the current user and clears session state.
  */
 export async function performSignOut(): Promise<void> {
-  clearDriveAccessToken();
   await signOut(auth);
   trackEvent('auth_sign_out', { status: 'success' });
 }

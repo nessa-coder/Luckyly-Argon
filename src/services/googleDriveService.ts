@@ -182,6 +182,54 @@ export async function backupAssetToDrive(params: {
 }
 
 /**
+ * Uploads a text or markdown document directly to user's Google Drive inside 'Luckyly Brand Assets'.
+ */
+export async function uploadTextDocumentToDrive(params: {
+  filename: string;
+  content: string;
+  mimeType?: string;
+}): Promise<{ success: boolean; file?: GoogleDriveFile; error?: string }> {
+  const token = getDriveAccessToken();
+  if (!token) {
+    return { success: false, error: 'Google Drive is not connected. Sign in with Google first.' };
+  }
+
+  try {
+    const folderId = await getOrCreateLuckylyFolder();
+    const metadata = {
+      name: params.filename,
+      mimeType: params.mimeType || 'text/markdown',
+      parents: folderId ? [folderId] : undefined,
+    };
+
+    const form = new FormData();
+    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+    form.append('file', new Blob([params.content], { type: params.mimeType || 'text/markdown' }));
+
+    const uploadRes = await fetch(
+      'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,webViewLink,thumbnailLink',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: form,
+      }
+    );
+
+    if (!uploadRes.ok) {
+      const errData = await uploadRes.json().catch(() => ({}));
+      return { success: false, error: errData?.error?.message || 'Failed to upload document to Drive.' };
+    }
+
+    const file = await uploadRes.json();
+    return { success: true, file };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Error uploading document to Google Drive.' };
+  }
+}
+
+/**
  * Backs up brand assets into the user's Google Drive inside the 'Luckyly Brand Assets' folder.
  */
 export async function backupAllNessaAssetsToDrive(

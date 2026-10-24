@@ -38,7 +38,6 @@ import { NessaProvider } from './context/NessaContext.tsx';
 import { NessaMascot } from './components/NessaMascot.tsx';
 import { HelpUsImproveButton } from './components/HelpUsImproveButton.tsx';
 import { BugReportModal } from './components/BugReportModal.tsx';
-import { GoogleDriveModal } from './components/GoogleDriveModal.tsx';
 
 function LuckylyMain() {
   // Cookieless Behavioral Analytics (automated scroll depth 25%, 50%, 75%, 100% and events)
@@ -79,9 +78,6 @@ function LuckylyMain() {
 
   // Bug Report to Nessa Modal
   const [bugReportOpen, setBugReportOpen] = useState<boolean>(false);
-
-  // Google Drive Workspace Modal
-  const [driveOpen, setDriveOpen] = useState<boolean>(false);
 
   const handleScrollToSection = (sectionId: string) => {
     if (activeTab !== 'home') {
@@ -429,13 +425,6 @@ function LuckylyMain() {
               Report to Nessa
             </button>
             <span className="text-slate-800">|</span>
-            <button
-              onClick={() => setDriveOpen(true)}
-              className="hover:text-amber-300 transition-colors cursor-pointer text-neutral-300 font-medium flex items-center gap-1 inline-flex"
-            >
-              Google Drive
-            </button>
-            <span className="text-slate-800">|</span>
             <a
               href="mailto:nessa@luckyly.org"
               className="hover:text-amber-300 transition-colors cursor-pointer"
@@ -540,12 +529,6 @@ function LuckylyMain() {
       <BugReportModal
         isOpen={bugReportOpen}
         onClose={() => setBugReportOpen(false)}
-      />
-
-      {/* Google Drive Workspace Modal */}
-      <GoogleDriveModal
-        isOpen={driveOpen}
-        onClose={() => setDriveOpen(false)}
       />
 
     </div>
